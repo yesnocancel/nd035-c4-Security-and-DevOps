@@ -13,13 +13,19 @@ import com.example.demo.model.persistence.repositories.ItemRepository;
 import com.example.demo.model.persistence.repositories.OrderRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.CreateUserRequest;
+import com.example.demo.security.JWTAuthenticationFilter;
+import com.example.demo.security.JWTAuthenticationVerificationFilter;
+import com.example.demo.security.WebSecurityConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -28,7 +34,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(UserController.class)
+@SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class UserControllerUnitTests {
     @Autowired
     private MockMvc mvc;
@@ -42,20 +49,17 @@ public class UserControllerUnitTests {
     @MockBean
     private CartRepository cartRepository;
 
-    @MockBean
-    private OrderRepository orderRepository;
-
-    @MockBean
-    private ItemRepository itemRepository;
-    
     @Test
     public void givenUser_whenGetUsername_thenReturnCorrectUser() throws Exception {
         // given
         User testUser = getTestUser();
+        String jwtToken = JWTAuthenticationFilter.createToken(testUser.getUsername());
+
         given(userRepository.findByUsername(testUser.getUsername())).willReturn(testUser);
 
         // when
-        MvcResult mvcResult = mvc.perform(get("/api/user/testuser")
+        MvcResult mvcResult = mvc.perform(get("/api/user/" + testUser.getUsername())
+                .header("Authorization", "Bearer " + jwtToken)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -67,13 +71,27 @@ public class UserControllerUnitTests {
    }
 
     @Test
+    public void givenNoJwt_whenGetUsername_thenReturnForbidden() throws Exception {
+        // given
+        User testUser = getTestUser();
+
+        // when
+        mvc.perform(get("/api/user/" + testUser.getUsername())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     public void givenUser_whenGetUserId_thenReturnCorrectUser() throws Exception {
         // given
         User testUser = getTestUser();
+        String jwtToken = JWTAuthenticationFilter.createToken(testUser.getUsername());
+
         given(userRepository.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // when
         MvcResult mvcResult = mvc.perform(get("/api/user/id/"+testUser.getId())
+                .header("Authorization", "Bearer " + jwtToken)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -82,6 +100,17 @@ public class UserControllerUnitTests {
         // then
         Assertions.assertEquals(testUser.getId(), returnedUser.getId());
         Assertions.assertEquals(testUser.getUsername(), returnedUser.getUsername());
+    }
+
+    @Test
+    public void givenNoJwt_whenGetUserId_thenReturnForbidden() throws Exception {
+        // given
+        User testUser = getTestUser();
+
+        // when / then
+        mvc.perform(get("/api/user/id/"+testUser.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -103,6 +132,37 @@ public class UserControllerUnitTests {
         Assertions.assertEquals(testUser.getUsername(), returnedUser.getUsername());
     }
 
+    @Test
+    public void givenPasswordTooShort_whenCreateUser_thenReturnBadRequest() throws Exception {
+        // given
+        CreateUserRequest testCreateUserRequest = getTestCreateUserRequest();
+        testCreateUserRequest.setPassword("short");
+        testCreateUserRequest.setConfirmPassword("short");
+
+        String requestString = objectMapper.writeValueAsString(testCreateUserRequest);
+
+        // when / then
+        mvc.perform(post("/api/user/create")
+                .content(requestString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void givenPasswordConfirmNotEqual_whenCreateUser_thenReturnBadRequest() throws Exception {
+        // given
+        CreateUserRequest testCreateUserRequest = getTestCreateUserRequest();
+        testCreateUserRequest.setConfirmPassword("typoinconfirm");
+
+        String requestString = objectMapper.writeValueAsString(testCreateUserRequest);
+
+        // when / then
+        mvc.perform(post("/api/user/create")
+                .content(requestString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
    private User getTestUser() {
         User testUser = new User();
         testUser.setId(345L);
@@ -114,6 +174,8 @@ public class UserControllerUnitTests {
     private CreateUserRequest getTestCreateUserRequest() {
         CreateUserRequest testCreateUserRequest = new CreateUserRequest();
         testCreateUserRequest.setUsername("testuser");
+        testCreateUserRequest.setPassword("testpassword");
+        testCreateUserRequest.setConfirmPassword("testpassword");
         return testCreateUserRequest;
     }
 
