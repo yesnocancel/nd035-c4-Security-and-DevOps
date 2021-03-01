@@ -21,7 +21,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "cart")
 public class Cart {
-	
+	public Cart() {
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@JsonProperty
