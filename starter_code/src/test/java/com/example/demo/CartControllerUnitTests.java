@@ -187,6 +187,22 @@ public class CartControllerUnitTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void givenNoJwt_whenAddToCart_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(post("/api/cart/addToCart")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void givenNoJwt_whenRemoveFromCart_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(post("/api/cart/removeFromCart")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
     private Item getTestItem() {
         Item testItem = new Item();
         testItem.setId(123L);
