@@ -5,17 +5,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.example.demo.controllers.UserController;
 import com.example.demo.model.persistence.Cart;
 import com.example.demo.model.persistence.User;
 import com.example.demo.model.persistence.repositories.CartRepository;
-import com.example.demo.model.persistence.repositories.ItemRepository;
-import com.example.demo.model.persistence.repositories.OrderRepository;
 import com.example.demo.model.persistence.repositories.UserRepository;
 import com.example.demo.model.requests.CreateUserRequest;
 import com.example.demo.security.JWTAuthenticationFilter;
-import com.example.demo.security.JWTAuthenticationVerificationFilter;
-import com.example.demo.security.WebSecurityConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import org.junit.Test;
@@ -23,7 +18,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -70,16 +64,6 @@ public class UserControllerUnitTests {
         Assertions.assertEquals(testUser.getUsername(), returnedUser.getUsername());
    }
 
-    @Test
-    public void givenNoJwt_whenGetUsername_thenReturnForbidden() throws Exception {
-        // given
-        User testUser = getTestUser();
-
-        // when
-        mvc.perform(get("/api/user/" + testUser.getUsername())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
 
     @Test
     public void givenUser_whenGetUserId_thenReturnCorrectUser() throws Exception {
@@ -102,16 +86,6 @@ public class UserControllerUnitTests {
         Assertions.assertEquals(testUser.getUsername(), returnedUser.getUsername());
     }
 
-    @Test
-    public void givenNoJwt_whenGetUserId_thenReturnForbidden() throws Exception {
-        // given
-        User testUser = getTestUser();
-
-        // when / then
-        mvc.perform(get("/api/user/id/"+testUser.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
-    }
 
     @Test
     public void givenCreateUserRequest_whenCreateUser_thenReturnCorrectUser() throws Exception {
@@ -163,7 +137,24 @@ public class UserControllerUnitTests {
                 .andExpect(status().isBadRequest());
     }
 
-   private User getTestUser() {
+    @Test
+    public void givenNoJwt_whenGetUsername_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(get("/api/user/username")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void givenNoJwt_whenGetUserId_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(get("/api/user/id/999")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+
+    private User getTestUser() {
         User testUser = new User();
         testUser.setId(345L);
         testUser.setUsername("testuser");

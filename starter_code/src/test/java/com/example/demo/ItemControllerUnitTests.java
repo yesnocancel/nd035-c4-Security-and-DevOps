@@ -139,6 +139,22 @@ public class ItemControllerUnitTests {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    public void givenNoJwt_whenListItemById_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(get("/api/item/123")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void givenNoJwt_whenListAllItemByName_thenReturnForbidden() throws Exception {
+        // when / then
+        mvc.perform(get("/api/item/name/itemname")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
     private User getTestUser() {
         User testUser = new User();
         testUser.setId(345L);
@@ -178,7 +194,6 @@ public class ItemControllerUnitTests {
 
    private List<Item> mvcResultToItemList(MvcResult result) throws Exception {
        String contentAsString = result.getResponse().getContentAsString();
-       // return objectMapper.readValue(contentAsString, List.class);
        return objectMapper.convertValue(objectMapper.readValue(contentAsString, List.class), new TypeReference<List<Item>>() { });
    }
 }
