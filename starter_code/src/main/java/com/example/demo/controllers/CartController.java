@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.SareetaApplication;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -46,6 +47,7 @@ public class CartController {
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.addItem(item.get()));
 		cartRepository.save(cart);
+		SareetaApplication.logger.info("[CartController] Successfully saved cart for user "+ user.getUsername());
 		return ResponseEntity.ok(cart);
 	}
 	
@@ -63,6 +65,7 @@ public class CartController {
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.removeItem(item.get()));
 		cartRepository.save(cart);
+		SareetaApplication.logger.info("[CartController] Successfully saved cart for user "+ user.getUsername());
 		return ResponseEntity.ok(cart);
 	}
 		

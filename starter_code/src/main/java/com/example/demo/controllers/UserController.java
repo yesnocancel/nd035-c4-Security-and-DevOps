@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.SareetaApplication;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,12 @@ public class UserController {
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
-		return user == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(user);
+		if (user == null) {
+			SareetaApplication.logger.warn("[UserController] User "+ username +" not found!");
+			return ResponseEntity.notFound().build();
+		}
+		SareetaApplication.logger.info("[UserController] Successfully retrieved user "+ username);
+		return ResponseEntity.ok(user);
 	}
 	
 	@PostMapping("/create")
@@ -54,10 +60,12 @@ public class UserController {
 				!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
 			//System.out.println("Error - Either length is less than 7 or pass and conf pass do not match. Unable to create ",
 			//		createUserRequest.getUsername());
+			SareetaApplication.logger.warn("[UserController] Unable to create user. Either pass length is less than 7 or pass and conf pass do not match.");
 			return ResponseEntity.badRequest().build();
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 		userRepository.save(user);
+		SareetaApplication.logger.info("[UserController] User "+ user.getUsername() +" successfully created");
 		return ResponseEntity.ok(user);
 	}
 	

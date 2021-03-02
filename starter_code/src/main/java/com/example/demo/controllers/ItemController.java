@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.SareetaApplication;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +22,26 @@ public class ItemController {
 	
 	@GetMapping
 	public ResponseEntity<List<Item>> getItems() {
+		SareetaApplication.logger.info("[ItemController] Retrieving all items");
 		return ResponseEntity.ok(itemRepository.findAll());
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Item> getItemById(@PathVariable Long id) {
+		SareetaApplication.logger.info("[ItemController] Retrieving item with id "+id);
 		return ResponseEntity.of(itemRepository.findById(id));
 	}
 	
 	@GetMapping("/name/{name}")
 	public ResponseEntity<List<Item>> getItemsByName(@PathVariable String name) {
+		SareetaApplication.logger.info("[ItemController] Retrieving item by name "+name);
 		List<Item> items = itemRepository.findByName(name);
-		return items == null || items.isEmpty() ? ResponseEntity.notFound().build()
-				: ResponseEntity.ok(items);
-			
+		if (items == null) {
+			SareetaApplication.logger.warn("[ItemController] Item with name "+name+" not found!");
+			return  ResponseEntity.notFound().build();
+		}
+		SareetaApplication.logger.info("[ItemController] Successfully retrieve item with name "+name);
+		return ResponseEntity.ok(items);
 	}
 	
 }
