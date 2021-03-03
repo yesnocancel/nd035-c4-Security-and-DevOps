@@ -143,19 +143,19 @@ public class OrderControllerUnitTests {
     }
 
     @Test
-    public void givenNoJwt_whenSubmit_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenSubmit_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(post("/api/order/submit/username")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void givenNoJwt_whenGetHistory_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenGetHistory_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/order/history/username")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     private User getTestUser() {

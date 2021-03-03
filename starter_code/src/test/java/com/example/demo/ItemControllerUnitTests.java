@@ -132,27 +132,27 @@ public class ItemControllerUnitTests {
     }
 
     @Test
-    public void givenNoJwt_whenListAllItems_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenListAllItems_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/item")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void givenNoJwt_whenListItemById_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenListItemById_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/item/123")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void givenNoJwt_whenListAllItemByName_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenListAllItemByName_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/item/name/itemname")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     private User getTestUser() {

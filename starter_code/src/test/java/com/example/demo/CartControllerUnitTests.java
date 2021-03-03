@@ -188,19 +188,19 @@ public class CartControllerUnitTests {
     }
 
     @Test
-    public void givenNoJwt_whenAddToCart_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenAddToCart_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(post("/api/cart/addToCart")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void givenNoJwt_whenRemoveFromCart_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenRemoveFromCart_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(post("/api/cart/removeFromCart")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     private Item getTestItem() {

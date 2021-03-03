@@ -138,19 +138,19 @@ public class UserControllerUnitTests {
     }
 
     @Test
-    public void givenNoJwt_whenGetUsername_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenGetUsername_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/user/username")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void givenNoJwt_whenGetUserId_thenReturnForbidden() throws Exception {
+    public void givenNoJwt_whenGetUserId_thenReturnUnauthorized() throws Exception {
         // when / then
         mvc.perform(get("/api/user/id/999")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
 
